@@ -1,0 +1,251 @@
+<ui:FluentWindow x:Class="ProfileJanitor.MainWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 Title="ProfileJanitor" Width="1240" Height="800" MinWidth="980" MinHeight="600"
+                 WindowStartupLocation="CenterScreen"
+                 ExtendsContentIntoTitleBar="True" WindowBackdropType="Mica" WindowCornerPreference="Round">
+    <!-- Teksty ustawia MainWindow.ApplyTexts() - dzieki temu jezyk zmienia sie bez przebudowy okna.
+         Style ponizej maja klucze: styl niejawny (bez klucza) nadpisalby wyglad WPF-UI. -->
+    <ui:FluentWindow.Resources>
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="16,12" />
+        </Style>
+        <Style x:Key="Body" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="Caption" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+        <Style x:Key="Big" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,2,0,2" />
+        </Style>
+        <!-- Etykiety typu i roli. Kolor wybiera Tag elementu (Row.Tone / Row.RoleTone): ok = zielony, warn = pomaranczowy,
+             danger = czerwony, info = fioletowy, neutral = szary, none = etykieta ukryta. -->
+        <Style x:Key="Pill" TargetType="Border">
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="10,3" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Background" Value="#22808080" />
+            <Style.Triggers>
+                <Trigger Property="Tag" Value="ok"><Setter Property="Background" Value="#332E9E5B" /></Trigger>
+                <Trigger Property="Tag" Value="warn"><Setter Property="Background" Value="#33E08A00" /></Trigger>
+                <Trigger Property="Tag" Value="danger"><Setter Property="Background" Value="#33E5484D" /></Trigger>
+                <Trigger Property="Tag" Value="info"><Setter Property="Background" Value="#339B7BE0" /></Trigger>
+                <Trigger Property="Tag" Value="none"><Setter Property="Visibility" Value="Collapsed" /></Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="PillText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+            <Style.Triggers>
+                <Trigger Property="Tag" Value="ok"><Setter Property="Foreground" Value="#2E9E5B" /></Trigger>
+                <Trigger Property="Tag" Value="warn"><Setter Property="Foreground" Value="#E08A00" /></Trigger>
+                <Trigger Property="Tag" Value="danger"><Setter Property="Foreground" Value="#E5484D" /></Trigger>
+                <Trigger Property="Tag" Value="info"><Setter Property="Foreground" Value="#9B7BE0" /></Trigger>
+            </Style.Triggers>
+        </Style>
+    </ui:FluentWindow.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar x:Name="TitleBarCtl" Grid.Row="0" Title="ProfileJanitor" />
+
+        <!-- 1: komputer, szukanie, narzedzia -->
+        <Grid x:Name="Header" Grid.Row="1" Margin="20,4,20,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:TextBox x:Name="TxtHost" Grid.Column="0" Icon="{ui:SymbolIcon Desktop24}" KeyDown="TxtHost_KeyDown" />
+            <ui:Button x:Name="BtnConnect" Grid.Column="1" Margin="8,0,0,0" Appearance="Primary" Icon="{ui:SymbolIcon ArrowSync24}" Click="Connect_Click" />
+            <ui:TextBox x:Name="TxtFilter" Grid.Column="2" Margin="24,0,24,0" Width="300" HorizontalAlignment="Left" Icon="{ui:SymbolIcon Search24}" TextChanged="TxtFilter_TextChanged" />
+            <StackPanel Grid.Column="3" Orientation="Horizontal">
+                <ui:Button x:Name="BtnExclusions" Margin="0,0,8,0" Click="Exclusions_Click" />
+                <ui:Button x:Name="BtnCsv" Margin="0,0,8,0" Icon="{ui:SymbolIcon Save24}" Click="Csv_Click" />
+                <ui:Button x:Name="BtnLang" Margin="0,0,8,0" MinWidth="44" Click="Lang_Click" />
+                <ui:Button x:Name="BtnHelp" Margin="0,0,8,0" Icon="{ui:SymbolIcon QuestionCircle24}" Click="Help_Click" />
+                <ui:Button x:Name="BtnTheme" Icon="{ui:SymbolIcon WeatherMoon24}" Click="Theme_Click" />
+            </StackPanel>
+        </Grid>
+
+        <!-- 2: liczby, ktore decyduja o tym, co robic -->
+        <UniformGrid Grid.Row="2" Columns="4" Margin="14,0,14,12">
+            <Border Style="{StaticResource Card}" Margin="6,0">
+                <StackPanel>
+                    <TextBlock x:Name="T1Cap" Style="{StaticResource Caption}" />
+                    <TextBlock x:Name="T1Val" Style="{StaticResource Big}" />
+                    <TextBlock x:Name="T1Sub" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="6,0">
+                <StackPanel>
+                    <TextBlock x:Name="T2Cap" Style="{StaticResource Caption}" />
+                    <TextBlock x:Name="T2Val" Style="{StaticResource Big}" />
+                    <TextBlock x:Name="T2Sub" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="6,0">
+                <StackPanel>
+                    <TextBlock x:Name="T3Cap" Style="{StaticResource Caption}" />
+                    <TextBlock x:Name="T3Val" Style="{StaticResource Big}" />
+                    <ProgressBar x:Name="T3Bar" Height="4" Minimum="0" Maximum="100" Margin="0,2,0,4" />
+                    <TextBlock x:Name="T3Sub" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="6,0">
+                <StackPanel>
+                    <TextBlock x:Name="T4Cap" Style="{StaticResource Caption}" />
+                    <TextBlock x:Name="T4Val" Style="{StaticResource Big}" />
+                    <TextBlock x:Name="T4Sub" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- 3: ostrzezenie pokazuje sie tylko wtedy, gdy jest o czym ostrzegac -->
+        <ui:InfoBar x:Name="Status" Grid.Row="3" Margin="20,0,20,12" IsOpen="False" IsClosable="False" Severity="Warning" />
+
+        <!-- 4: szybkie zaznaczanie -->
+        <WrapPanel x:Name="SelectBar" Grid.Row="4" Margin="20,0,20,10">
+            <TextBlock x:Name="LblSelect" Style="{StaticResource Caption}" FontSize="13" VerticalAlignment="Center" Margin="0,2,12,2" />
+            <ui:Button x:Name="BtnByAge" Margin="0,2,8,2" Icon="{ui:SymbolIcon Clock24}" Click="ByAge_Click" />
+            <ui:NumberBox x:Name="NumDays" Width="76" Margin="0,2,8,2" Value="90" Minimum="0" Maximum="10000" MaxDecimalPlaces="0"
+                          ClearButtonEnabled="False" SpinButtonPlacementMode="Hidden" />
+            <TextBlock x:Name="LblDays" Style="{StaticResource Body}" Margin="0,2,20,2" />
+            <CheckBox x:Name="ChkSkipLocal" IsChecked="True" Margin="0,2,12,2" />
+            <CheckBox x:Name="ChkSkipAdmins" IsChecked="True" Margin="0,2,24,2" />
+            <ui:Button x:Name="BtnOrphans" Margin="0,2,8,2" Click="Orphans_Click" />
+            <ui:Button x:Name="BtnLeftovers" Margin="0,2,8,2" Click="Leftovers_Click" />
+            <ui:Button x:Name="BtnNone" Margin="0,2,0,2" Appearance="Transparent" Click="None_Click" />
+        </WrapPanel>
+
+        <!-- 5: lista; szczegoly techniczne (folder, SID, podfoldery) rozwijaja sie pod zaznaczonym wierszem -->
+        <ui:DataGrid x:Name="Table" Grid.Row="5" Margin="20,0,20,0" AutoGenerateColumns="False"
+                     CanUserAddRows="False" CanUserDeleteRows="False" HeadersVisibility="Column"
+                     SelectionMode="Single" GridLinesVisibility="Horizontal" RowDetailsVisibilityMode="VisibleWhenSelected"
+                     HorizontalScrollBarVisibility="Disabled" MouseDoubleClick="Table_DoubleClick">
+            <ui:DataGrid.Columns>
+                <DataGridTemplateColumn x:Name="ColDel" Width="64" CanUserResize="False" SortMemberPath="IsChecked" CanUserSort="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanCheck}"
+                                      ToolTip="{Binding StateTip}" ToolTipService.ShowOnDisabled="True" HorizontalAlignment="Center" MinWidth="0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn x:Name="ColAccount" Width="2*" SortMemberPath="Title" CanUserSort="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="4,7" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Title}" Style="{StaticResource Body}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding Subtitle}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn x:Name="ColKind" Width="190" SortMemberPath="KindText" CanUserSort="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource Pill}" Tag="{Binding Tone}" ToolTip="{Binding KindHint}">
+                                <TextBlock Text="{Binding KindText}" Tag="{Binding Tone}" Style="{StaticResource PillText}" />
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn x:Name="ColRole" Width="150" SortMemberPath="RoleRank" CanUserSort="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource Pill}" Tag="{Binding RoleTone}" ToolTip="{Binding RoleHint}">
+                                <TextBlock Text="{Binding RoleText}" Tag="{Binding RoleTone}" Style="{StaticResource PillText}" />
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn x:Name="ColLast" Width="165" SortMemberPath="Last" CanUserSort="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="4,7" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding LastRel}" Style="{StaticResource Body}" />
+                                <TextBlock Text="{Binding LastText}" Style="{StaticResource Caption}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn x:Name="ColSize" Width="100" SortMemberPath="Size" CanUserSort="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding SizeText}" Style="{StaticResource Body}" HorizontalAlignment="Right" Margin="4,0,16,0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn x:Name="ColState" Width="*" SortMemberPath="StateText" CanUserSort="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding StateText}" Style="{StaticResource Caption}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="4,0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </ui:DataGrid.Columns>
+            <ui:DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <Border Padding="72,2,16,14">
+                        <StackPanel>
+                            <TextBlock Text="{Binding DetailsText}" Style="{StaticResource Caption}" TextWrapping="Wrap" LineHeight="19" />
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <ui:Button Content="{Binding OpenLabel}" Icon="{ui:SymbolIcon Folder24}" Margin="0,0,8,0" Click="OpenFolder_Click" />
+                                <ui:Button Content="{Binding ExcludeLabel}" IsEnabled="{Binding CanExclude}" Click="Exclude_Click" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ui:DataGrid.RowDetailsTemplate>
+        </ui:DataGrid>
+
+        <StackPanel x:Name="Loading" Grid.Row="5" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
+            <ui:ProgressRing IsIndeterminate="True" Width="44" Height="44" />
+            <TextBlock x:Name="LblLoading" Style="{StaticResource Caption}" FontSize="13" Margin="0,14,0,0" HorizontalAlignment="Center" />
+        </StackPanel>
+        <TextBlock x:Name="LblEmpty" Grid.Row="5" Style="{StaticResource Caption}" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" />
+
+        <!-- 6: opcje usuwania stoja przy przycisku, ktorego dotycza -->
+        <Border x:Name="ActionBar" Grid.Row="6" Style="{StaticResource Card}" Margin="20,12,20,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="260" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <CheckBox x:Name="ChkLogoff" Grid.Column="0" Margin="0,0,24,0" Checked="Logoff_Changed" Unchecked="Logoff_Changed" />
+                <CheckBox x:Name="ChkBackup" Grid.Column="1" Margin="0,0,8,0" />
+                <ui:TextBox x:Name="TxtBackup" Grid.Column="2" />
+                <ui:Button x:Name="BtnBrowse" Grid.Column="3" Margin="8,0,0,0" Icon="{ui:SymbolIcon Folder24}" Click="Browse_Click" />
+                <ui:Button x:Name="BtnDelete" Grid.Column="5" Appearance="Danger" Icon="{ui:SymbolIcon Delete24}" IsEnabled="False" MinWidth="200" Click="Delete_Click" />
+            </Grid>
+        </Border>
+    </Grid>
+</ui:FluentWindow>

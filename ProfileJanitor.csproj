@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Budowanie: dotnet build -c Release  ->  bin\Release\net48\ProfileJanitor.exe (jeden plik, biblioteki wklejone przez Costura). -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>ProfileJanitor</AssemblyName>
+    <RootNamespace>ProfileJanitor</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- atrybuty zestawu sa w Core.cs -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <StartupObject>ProfileJanitor.App</StartupObject>
+    <DebugType>none</DebugType>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- wlasny Main (tryb wiersza polecen), wiec App.xaml nie moze generowac swojego -->
+    <ApplicationDefinition Remove="App.xaml" />
+    <Page Include="App.xaml" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Windows.Forms" />
+    <PackageReference Include="WPF-UI" Version="4.2.1" />
+    <PackageReference Include="Costura.Fody" Version="5.7.0" PrivateAssets="all" />
+    <PackageReference Include="Fody" Version="6.9.3" PrivateAssets="all" />
+  </ItemGroup>
+</Project>
