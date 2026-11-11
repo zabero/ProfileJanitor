@@ -51,7 +51,9 @@ System Properties > User Profiles). It never deletes accounts and never writes t
     dotnet build -c Release
 
 The result is `bin\Release\net48\ProfileJanitor.exe`, a single file. In Visual Studio 2022 open `ProfileJanitor.sln`.
-No prebuilt binary is published; build it yourself so you know what you run.
+A ready-to-run build is on the [Releases](../../releases) page: a zip with `ProfileJanitor.exe`, the license and the
+third-party notices. The file is not signed with a trusted certificate, so Windows SmartScreen may warn on first start;
+compare its SHA-256 with the one in the release notes, or build from source.
 
 ## Use
 
